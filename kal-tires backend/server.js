@@ -26,6 +26,9 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 app.use('/', require('./routes/root'))
 app.use('/users', require('./routes/userRoutes'))
 app.use('/admins', require('./routes/adminRoutes'))
+app.use('/products', require('./routes/productRoutes'));
+app.use('/cart', require('./routes/cartRoutes'));
+
 
 app.all('*', (req, res) => {
     if (req.accepts('html')) {

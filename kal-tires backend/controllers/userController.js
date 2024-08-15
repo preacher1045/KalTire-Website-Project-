@@ -35,9 +35,16 @@ const createNewUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Email already exists' })
     }
 
+    const userRecord = await Admin.auth().createUser({
+        email: req.body.email,
+        password: req.body.password,
+        emailVerified: false,
+        disabled: false
+    });
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10) //10 salts
-    const userObject = { userName, "password": hashedPassword, email }
+    const userObject = { userName, "password": hashedPassword, email, firebase: userRecord.uid };
 
     // Create and store new user
     const user = await User.create(userObject)

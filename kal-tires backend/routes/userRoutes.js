@@ -3,11 +3,13 @@ const router = express.Router()
 const userController = require("../controllers/userController")
 
 
+const VerifyFirebaseToken = require("../middleware/firebaseVerifyToken")
+
 router.route('/')
-    .get(userController.getAllUsers)
-    .post(userController.createNewUser)
-    .patch(userController.updateUser)
-    .delete(userController.deleteUser)
+    .get(VerifyFirebaseToken, userController.getAllUsers)
+    .post(VerifyFirebaseToken, userController.createNewUser)
+    .patch(VerifyFirebaseToken, userController.updateUser)
+    .delete(VerifyFirebaseToken, userController.deleteUser)
 
 
     module.exports = router

@@ -17,10 +17,10 @@ const getAllAdmins = asyncHandler(async (req, res) => {
 // route POST /admins
 // @access private
 const createNewAdmin = asyncHandler(async (req, res) => {
-    const { userName, password } = req.body;
+    const { userName, password, email } = req.body;
 
     // Confirm data
-    if (!userName || !password) {
+    if (!userName || !password || !email) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -30,9 +30,22 @@ const createNewAdmin = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Username already exists' });
     }
 
+     // Check for duplicate Email
+    const duplicateUserEmail = await Admin.findOne({ email }).lean().exec();
+    if (duplicateUserEmail) {
+        return res.status(400).json({ message: 'Email already exists' });
+    }
+
+    const adminRecord = await admin.auth().createUser({
+        email: req.body.email,
+        password: req.body.password,
+        emailVerified: false,
+        disabled: false
+    })
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const adminObject = { userName, password: hashedPassword };
+    const adminObject = { userName, password: hashedPassword, email, firebaseUid: adminRecord.uid };
 
     // Create and store new admin
     const admin = await Admin.create(adminObject);
@@ -47,25 +60,33 @@ const createNewAdmin = asyncHandler(async (req, res) => {
 // route PATCH /admins
 // @access private
 const updateAdmin = asyncHandler(async (req, res) => {
-    const { id, userName, password } = req.body;
+    const { id, userName, password, email } = req.body;
 
     // Confirm data
-    if (!id || !userName ) {
-        return res.status(400).json({ message: 'All fields are required' });
+    if (!id || !userName || !email ) {
+        return res.status(400).json({ message: 'ID, username and emial are required' });
     }
 
     const admin = await Admin.findById(id).exec();
     if (!admin) {
-        return res.status(400).json({ message: 'Admin not found' });
+        return res.status(404).json({ message: 'Admin not found' });
     }
 
     // Check for duplicates
-    const duplicate = await Admin.findOne({ userName }).lean().exec();
-    if (duplicate && duplicate._id.toString() !== id) {
+    const duplicateUserName = await Admin.findOne({ userName }).lean().exec();
+    if (duplicateUserName && duplicateUserName._id.toString() !== id) {
         return res.status(409).json({ message: 'Duplicate username' });
     }
 
+    // Check for duplicates
+    const duplicateEmail = await Admin.findOne({ email }).lean().exec();
+    if (duplicateEmail && duplicateEmail._id.toString() !== id) {
+        return res.status(409).json({ message: 'Email already exists' });
+    }
+
+
     admin.userName = userName;
+    admin.email = email;
 
     if (password) {
         // Hash password again

@@ -5,18 +5,24 @@ const UserSchema = mongoose.Schema(
     {
         userName: {
             type: String,
-            reqiured: [true]
+            reqiured: true,
+            unique: true
         },
 
         email: {
             type: String,
-            required: [true]
+            required: true,
+            unique: true
         },
 
         password: {
             type: String,
-            required: [ true]
+            required: true
         },
+        firebaseUid: {
+            type: String,
+            required: true
+        }
     },
     {
         Timestamps: true

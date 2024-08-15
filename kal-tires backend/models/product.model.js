@@ -3,38 +3,28 @@ const mongoose = require("mongoose");
 
 const ProductSchema = mongoose.Schema(
     {
-        year: {
+        name: {
             type: String,
-            required: [false],
+            required: [true],
         },
 
-        make: {
+        price: {
             type: Number,
             required: [true],
         },
-
-        model: {
+        
+        image: {
             type: String,
-            required: [true],
+            required: [true]
         },
 
-        submodel: {
-            type: String,
-            required: [true],
-        },
-
-        tireSize: {
-            type: String,
-            required: [true],
-        },
-
-        wheelSize: {
+        description : {
             type: String,
             required: [true],
         },
     },
     {
-        Timestamps: true,
+        timestamps: true,
     }
 );
 
